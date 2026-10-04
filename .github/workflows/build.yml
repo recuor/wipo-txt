@@ -1,0 +1,35 @@
+name: Build EXE
+
+on:
+  workflow_dispatch:        # Actions 탭에서 수동 실행 버튼
+  push:
+    branches: [ main ]
+    paths:
+      - "wipo_txt_extractor.py"
+      - ".github/workflows/build.yml"
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: 소스 가져오기
+        uses: actions/checkout@v4
+
+      - name: Python 설치
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: 패키지 설치
+        run: |
+          python -m pip install --upgrade pip
+          pip install selenium pyinstaller
+
+      - name: EXE 빌드
+        run: pyinstaller --onefile --noconsole --name WIPO_TXT wipo_txt_extractor.py
+
+      - name: 결과물 업로드
+        uses: actions/upload-artifact@v4
+        with:
+          name: WIPO_TXT
+          path: dist/WIPO_TXT.exe
